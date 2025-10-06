@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, Enum, TIMESTAMP, func
 from sqlalchemy.orm import relationship
 from models.base import Base
-from models.chat import Chat
-
 import enum
 
 class UserRole(enum.Enum):
@@ -23,5 +21,6 @@ class User(Base):
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
-    # 💡 Указываем строкой "Chat"
+    # используем ленивые строковые ссылки
     chats = relationship("Chat", back_populates="user")
+    favorites = relationship("FavoriteQuestion", back_populates="user", cascade="all, delete")

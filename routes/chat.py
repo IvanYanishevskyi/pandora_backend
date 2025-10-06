@@ -25,7 +25,7 @@ def create_chat(body: ChatCreate, db: Session = Depends(get_db)):
     chat = Chat(
         external_id = body.external_id,   
         user_id     = body.user_id,
-        db_id       = body.db_id or "self",
+        db_id       = body.db_id or "primo",
         title       = body.title or ""
     )
     db.add(chat)

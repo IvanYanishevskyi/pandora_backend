@@ -11,21 +11,27 @@ router = APIRouter(prefix="/storage/messages", tags=["storage"])
 @router.post("", response_model=MessageOut, status_code=201)
 def create_message(msg: MessageCreate, db: Session = Depends(get_db)):
 
+
     chat = db.query(Chat).filter(Chat.id == msg.chat_id).first()
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found")
-
-    content_to_store = msg.content
-    if msg.role == "bot" and isinstance(msg.output, dict):
-        content_to_store = json.dumps(msg.output)
-
+ # Fallback: берем sql из msg.sql либо из output.sql
+    sql_val = msg.sql
+    if sql_val is None and isinstance(msg.output, dict):
+        sql_val = msg.output.get("sql")
     db_msg = MessageModel(
         chat_id=msg.chat_id,
         role=msg.role,
-        content=content_to_store,
-        output=msg.output,
+        content=msg.content,   # <-- оставляем как есть
+        sql_text=sql_val,                 # NEW
+        sql_dialect=msg.dialect,          # NEW
+        output=msg.output,     # <-- JSON как есть
     )
     db.add(db_msg)
     db.commit()
     db.refresh(db_msg)
+
+
+
     return db_msg
+

@@ -87,8 +87,7 @@ Dati tabulari:
 Colonne: {headers}
 Esempio di righe:
 {example_data}
-
-Scegli:
+È molto importante non includere i dati che risultano significativamente più alti rispetto agli altri, come ad esempio "Totale", "Backup", "Imprevisti".Scegli:
 - Tipo di grafico più adatto (bar, line, pie, scatter, ecc)
 - Colonna X
 - Colonne Y (una o più colonne numeriche) — come lista
