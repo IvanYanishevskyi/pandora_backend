@@ -1,33 +1,88 @@
-
-from passlib.context import CryptContext
-from jose import jwt
+from jose import jwt, JWTError
+from fastapi import Depends, HTTPException, status, Request
+from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from passlib.context import CryptContext
 
+from database.database import get_db
+from models.user import User
+# ------------------------------------------
+# Твои старые константы
 SECRET_KEY = "YJNdqRkQdLj8ZHsxzkD_KG8sXae-8fCsoN7V3xmcN90"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# ---- Твои функции (оставляем как есть) ----
 def get_password_hash(password: str) -> str:
-    """
-    Genera l'hash di una password in chiaro.
-    """
     return pwd_context.hash(password)
 
 hash_password = get_password_hash
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verifica che la password in chiaro corrisponda all'hash.
-    """
     return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
-    """
-    Crea un JWT contenente i dati forniti e la data di scadenza.
-    """
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+# ---- Новый слой безопасности ----
+
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    """
+    Извлекает токен из заголовка Authorization, проверяет подпись и возвращает объект пользователя.
+    """
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Bearer token")
+
+    token = auth_header.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=403, detail="User inactive or not found")
+
+    return user
+
+
+def require_role(*roles):
+    """
+    Проверяет, что роль пользователя входит в разрешённый список.
+    Пример: Depends(require_role('admin', 'super_admin'))
+    """
+    def role_dependency(request: Request, db: Session = Depends(get_db)):
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Bearer token")
+
+        token = auth_header.split(" ")[1]
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id: int = payload.get("id")
+            role: str = payload.get("role")
+            if not user_id or not role:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user or not user.is_active:
+            raise HTTPException(status_code=403, detail="User inactive or not found")
+
+        if role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: required one of {roles}, got '{role}'"
+            )
+        return user
+    return role_dependency

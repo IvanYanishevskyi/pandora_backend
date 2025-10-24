@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-MYSQL_USER = "api_user"
-MYSQL_PASSWORD = "123"
+MYSQL_USER = "root"
+MYSQL_PASSWORD = ""
 MYSQL_HOST = "localhost"
 MYSQL_PORT = "3306"
 MYSQL_DB = "interno"
@@ -23,7 +23,7 @@ def get_db() -> Session: # type: ignore
         db.close()
 
 # Additional admin database connection (admin tokens live in a separate DB)
-MYSQL_DB_ADMIN = "pandora_api"
+MYSQL_DB_ADMIN = "interno"
 
 DATABASE_URL_ADMIN = (
     f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB_ADMIN}"
