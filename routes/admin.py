@@ -46,6 +46,16 @@ class UserCreateRequest(BaseModel):
     organization_id: Optional[int] = 1
 
 
+class UserUpdateRequest(BaseModel):
+    username: str
+    password: Optional[str] = None  # Опционально при обновлении
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    role: str = "user"
+    is_active: bool = True
+    client_id: Optional[int] = None
+
+
 class OrganizationCreate(BaseModel):
     name: str
     description: Optional[str] = None
@@ -523,7 +533,7 @@ def delete_user(
 @router.put("/users/{user_id}")
 def update_user(
     user_id: int,
-    data: UserCreateRequest,
+    data: UserUpdateRequest,
     admin_token=Depends(get_admin_from_token),
     user=Depends(require_role("admin", "super_admin")),
     db: Session = Depends(get_db)
@@ -577,8 +587,8 @@ def update_user(
     target.role = new_role
     target.is_active = data.is_active
     
-    # Обновляем пароль только если он передан
-    if data.password:
+    # Обновляем пароль только если он передан и не пустой
+    if data.password and data.password.strip():
         target.password_hash = hash_password(data.password)
     
     # Обновляем client_id (только super_admin может менять)
@@ -1418,10 +1428,9 @@ def update_database_access(
         if target_db and target_db.client_id != user.client_id:
             raise HTTPException(status_code=403, detail="Cannot manage databases from other clients")
     
-    # Обновляем права
+    # Обновляем только права (updated_at обновится автоматически)
     access.can_read = data.can_read
     access.can_write = data.can_write
-    access.updated_at = datetime.now(timezone.utc)
     
     db.commit()
     db.refresh(access)
