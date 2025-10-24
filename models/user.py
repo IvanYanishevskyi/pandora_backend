@@ -4,6 +4,7 @@ from models.base import Base
 import enum
 
 class UserRole(enum.Enum):
+    super_admin = "super_admin"
     admin = "admin"
     user = "user"
 
@@ -16,7 +17,8 @@ class User(Base):
     full_name = Column(String(255))
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), default=UserRole.user)
-    is_active = Column(Boolean, default=True)
+    # По умолчанию пометим как неактивного — явное включение при создании
+    is_active = Column(Boolean, default=False)
     last_login = Column(TIMESTAMP, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

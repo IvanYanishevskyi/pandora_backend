@@ -28,7 +28,7 @@ async def generate_title(req: TitleRequest):
     client = openai.OpenAI()  
 
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4.1",
         messages=[
             {"role": "system", "content": "Sei un assistente che crea brevi titoli basati sul primo messaggio dell'utente per la cronologia della chat."},
             {"role": "user", "content": prompt}

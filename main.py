@@ -2,6 +2,7 @@
 from routes import chat
 from fastapi import FastAPI
 from routes import auth  # или как ты там назвал
+from routes import admin
 from fastapi.middleware.cors import CORSMiddleware
 from routes.storage import router as storage_router
 from routes import title_generator  # если есть роуты для title
@@ -23,6 +24,7 @@ app.add_middleware(
 # Роуты
 app.include_router(auth.router)
 app.include_router(chat.router)
+app.include_router(admin.router)
 app.include_router(storage_router)
 app.include_router(title_generator.router)  # если есть роуты для title
 app.include_router(chart_generator.router)  # если есть роуты для title

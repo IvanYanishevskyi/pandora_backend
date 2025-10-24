@@ -14,14 +14,14 @@ from core.security import hash_password
 def create_user():
     db: Session = next(get_db())
 
-    username = "andrea"
+    username = "roberto"
     password = "123"
-    email = "andrea@camngo.com"
+    email = "roberto@camngo.com"
 
     user = User(
         username=username,
         email=email,
-        full_name="CamnGo",
+        full_name="Roberto Merigo",
         password_hash=hash_password(password),
         role=UserRole.user,
         is_active=True,
