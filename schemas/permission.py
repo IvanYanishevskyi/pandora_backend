@@ -4,11 +4,10 @@ from datetime import datetime
 
 
 class PermissionBase(BaseModel):
-    economics: bool = Field(default=False, description="Access to costs, estimates, materials")
-    consuntivi: bool = Field(default=False, description="Access to hours, progress")
-    efficienza: bool = Field(default=False, description="Access to KPI, OEE, comparisons")
-    risorse: bool = Field(default=False, description="Access to machines, operators, departments")
-
+    economics: bool = Field(default=False)
+    consuntivi: bool = Field(default=False)
+    efficienza: bool = Field(default=False)
+    risorse: bool = Field(default=False)
 
 class PermissionCreate(PermissionBase):
     user_id: int

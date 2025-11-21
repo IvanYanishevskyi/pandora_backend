@@ -54,5 +54,4 @@ def delete_favorite(
     db.delete(fav)
     db.commit()
 
-    # Можно просто ничего не возвращать, FastAPI сам сформирует 204 без тела
     return {"message": "Deleted successfully"}

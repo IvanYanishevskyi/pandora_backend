@@ -4,32 +4,27 @@ from datetime import datetime
 
 
 class DatabaseAccessBase(BaseModel):
-    """Базовая схема для доступа к БД"""
-    can_read: bool = Field(default=True, description="Право на чтение из базы данных")
-    can_write: bool = Field(default=False, description="Право на запись в базу данных")
+    can_read: bool = Field(default=True)
+    can_write: bool = Field(default=False)
 
 
 class DatabaseAccessCreate(DatabaseAccessBase):
-    """Схема для создания доступа к БД"""
-    user_id: int = Field(..., description="ID пользователя")
-    database_id: int = Field(..., description="ID базы данных")
+    user_id: int = Field(...)
+    database_id: int = Field(...)
+
 
 
 class DatabaseAccessBulkCreate(BaseModel):
-    """Схема для массового создания доступов"""
-    user_id: int = Field(..., description="ID пользователя")
-    database_ids: List[int] = Field(..., description="Список ID баз данных")
-    can_read: bool = Field(default=True, description="Право на чтение")
-    can_write: bool = Field(default=False, description="Право на запись")
-
+    user_id: int = Field(...)
+    database_ids: List[int] = Field(...)
+    can_read: bool = Field(default=True)
+    can_write: bool = Field(default=False)
 
 class DatabaseAccessUpdate(DatabaseAccessBase):
-    """Схема для обновления прав доступа"""
     pass
 
 
 class DatabaseAccessResponse(DatabaseAccessBase):
-    """Схема ответа с информацией о доступе"""
     id: int
     user_id: int
     database_id: int
@@ -42,14 +37,12 @@ class DatabaseAccessResponse(DatabaseAccessBase):
 
 
 class DatabaseAccessWithDetails(DatabaseAccessResponse):
-    """Расширенная схема с деталями пользователя и БД"""
     user_username: Optional[str] = None
     database_name: Optional[str] = None
     client_name: Optional[str] = None
 
 
 class UserDatabaseAccessSummary(BaseModel):
-    """Сводка по доступам пользователя"""
     user_id: int
     username: str
     total_databases: int
@@ -62,7 +55,6 @@ class UserDatabaseAccessSummary(BaseModel):
 
 
 class DatabaseUserAccessSummary(BaseModel):
-    """Сводка по пользователям, имеющим доступ к БД"""
     database_id: int
     database_name: str
     client_id: int

@@ -5,12 +5,7 @@ from models.base import Base
 
 
 class UserDatabaseAccess(Base):
-    """
-    Модель для управления доступом пользователей к базам данных.
-    
-    Определяет, какие пользователи имеют доступ к каким базам данных,
-    и уровень их прав (чтение/запись).
-    """
+
     __tablename__ = "user_database_access"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)

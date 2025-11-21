@@ -19,7 +19,6 @@ class User(Base):
     full_name = Column(String(255))
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), default=UserRole.user)
-    # По умолчанию пометим как неактивного — явное включение при создании
     is_active = Column(Boolean, default=False)
     last_login = Column(TIMESTAMP, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())

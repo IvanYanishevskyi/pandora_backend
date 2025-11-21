@@ -64,11 +64,7 @@ def get_current_user(authorization: str = Header(...), db: Session = Depends(get
 
 
 def get_admin_from_token(x_admin_token: str = Header(...), db: Session = Depends(get_admin_db)):
-    """Validate admin token provided in X-Admin-Token header against DB.
 
-    Returns the AdminToken instance if valid. Raises 401/403 otherwise.
-    Also updates last_used timestamp.
-    """
     if not x_admin_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing admin token")
 
@@ -90,16 +86,9 @@ def get_admin_from_token(x_admin_token: str = Header(...), db: Session = Depends
 
 
 def get_super_admin_from_token(x_admin_token: str = Header(...), db: Session = Depends(get_admin_db)):
-    """Validate admin token and check if it belongs to a super admin.
-    
-    Returns the AdminToken instance if valid and belongs to super admin. 
-    Raises 401/403 otherwise.
-    """
-    # First validate the token like a regular admin
+
     token_rec = get_admin_from_token(x_admin_token, db)
     
-    # Additional check for super admin role would go here if needed
-    # For now, we assume admin tokens are used by super admins
-    # In a more complex system, you might want to link tokens to specific users
+    
     
     return token_rec

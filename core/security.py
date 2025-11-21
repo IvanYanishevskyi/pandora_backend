@@ -3,18 +3,22 @@ from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
+import os
 
 from database.database import get_db
 from models.user import User
+
 # ------------------------------------------
-# Твои старые константы
-SECRET_KEY = "YJNdqRkQdLj8ZHsxzkD_KG8sXae-8fCsoN7V3xmcN90"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+# Security settings from environment variables
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set! Generate one with: openssl rand -hex 32")
+
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ---- Твои функции (оставляем как есть) ----
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -29,12 +33,9 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# ---- Новый слой безопасности ----
 
 def get_current_user(request: Request, db: Session = Depends(get_db)):
-    """
-    Извлекает токен из заголовка Authorization, проверяет подпись и возвращает объект пользователя.
-    """
+
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Bearer token")
@@ -56,10 +57,7 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
 
 
 def require_role(*roles):
-    """
-    Проверяет, что роль пользователя входит в разрешённый список.
-    Пример: Depends(require_role('admin', 'super_admin'))
-    """
+   
     def role_dependency(request: Request, db: Session = Depends(get_db)):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):

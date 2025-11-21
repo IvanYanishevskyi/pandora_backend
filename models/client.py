@@ -18,3 +18,4 @@ class Client(Base):
     organization = relationship("Organization", back_populates="clients")
     users = relationship("User", back_populates="client")
     databases = relationship("ClientDatabase", back_populates="client")
+    tenant_registry = relationship("TenantRegistry", back_populates="client", uselist=False)
