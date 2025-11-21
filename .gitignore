@@ -11,3 +11,35 @@ __pycache__/
 # OS
 .DS_Store
 
+# Docker: ignore built images, compose overrides, envs and local orchestration files
+docker-compose.override.yml
+docker-compose.*.yml
+Dockerfile*
+docker-entrypoint.*
+*.dockerfile
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.override.yml
+docker-compose.dev.yml
+
+# Docker artifacts and local runtime
+/data/
+/var/lib/docker
+**/docker-compose.override.yml
+
+# Avoid committing image tarballs, local registries and cached layers
+*.tar
+*.tgz
+image-*.tar
+
+# Env files for docker
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Kubernetes / Helm files often used with Docker deployments
+k8s-*
+helm/
+
+
