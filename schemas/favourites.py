@@ -15,6 +15,7 @@ class FavoriteBase(BaseModel):
     dialect: DialectEnum = DialectEnum.mysql
     tags: Optional[List[str]] = None
     is_pinned: bool = False
+    conversation_id: Optional[str] = None  # UUID to group Q&A in favorites
 
 class FavoriteCreate(FavoriteBase):
     pass
@@ -28,6 +29,7 @@ class FavoriteUpdate(BaseModel):
     is_pinned: Optional[bool]
     usage_count: Optional[int]
     last_used_at: Optional[datetime]
+    conversation_id: Optional[str]  # UUID to group Q&A in favorites
 
 class FavoriteOut(FavoriteBase):
     id: int

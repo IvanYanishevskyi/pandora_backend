@@ -21,7 +21,6 @@ class CoreResolver:
                 detail=f"Tenant '{tenant_id}' not found"
             )
         
-        # Получаем регистрацию Core
         registry = db.query(TenantRegistry).filter(
             TenantRegistry.client_id == client.id,
             TenantRegistry.is_active == True
@@ -37,8 +36,7 @@ class CoreResolver:
     
     @staticmethod
     async def check_core_health(core_url: str, timeout: float = 5.0) -> bool:
-        """
-
+        """Check if Core service is healthy"""
         try:
             async with httpx.AsyncClient(timeout=timeout) as client:
                 response = await client.get(f"{core_url}/health")

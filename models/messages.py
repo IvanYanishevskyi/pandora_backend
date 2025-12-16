@@ -14,6 +14,7 @@ class Message(Base):
     output = Column(JSON, nullable=True)
     sql_text = Column(Text, nullable=True)         # NEW
     sql_dialect = Column(String(32), nullable=True) # NEW
+    conversation_id = Column(String(36), nullable=True, index=True)  # UUID to correlate Q&A pair
     created_at = Column(DateTime, default=datetime.utcnow)
 
     chat = relationship("Chat", back_populates="messages")

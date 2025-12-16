@@ -21,6 +21,7 @@ class FavoriteQuestion(Base):
     is_pinned = Column(Boolean, default=False)
     usage_count = Column(Integer, default=0)
     last_used_at = Column(DateTime, nullable=True)
+    conversation_id = Column(String(36), nullable=True, index=True)  # UUID to group Q&A in favorites
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

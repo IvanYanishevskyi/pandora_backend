@@ -25,6 +25,7 @@ def add_favorite(
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
+    # conversation_id is now included in FavoriteCreate schema
     new_fav = FavoriteQuestion(
         **fav.dict(exclude={"user_id"}),
         user_id=current_user["id"]
@@ -55,3 +56,55 @@ def delete_favorite(
     db.commit()
 
     return {"message": "Deleted successfully"}
+
+
+@router.get("/conversation/{conversation_id}", response_model=FavoriteOut)
+def get_favorite_by_conversation(
+    conversation_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get favorite by conversation_id"""
+    fav = (
+        db.query(FavoriteQuestion)
+        .filter(
+            FavoriteQuestion.conversation_id == conversation_id,
+            FavoriteQuestion.user_id == current_user["id"]
+        )
+        .first()
+    )
+    
+    if not fav:
+        raise HTTPException(status_code=404, detail="Favorite not found for this conversation")
+    
+    return fav
+
+
+@router.patch("/{favorite_id}", response_model=FavoriteOut)
+def update_favorite(
+    favorite_id: int,
+    update_data: FavoriteUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """Update favorite (including conversation_id)"""
+    fav = (
+        db.query(FavoriteQuestion)
+        .filter(
+            FavoriteQuestion.id == favorite_id,
+            FavoriteQuestion.user_id == current_user["id"]
+        )
+        .first()
+    )
+    
+    if not fav:
+        raise HTTPException(status_code=404, detail="Favorite not found")
+    
+    # Update only provided fields
+    for field, value in update_data.dict(exclude_unset=True).items():
+        setattr(fav, field, value)
+    
+    db.commit()
+    db.refresh(fav)
+    
+    return fav

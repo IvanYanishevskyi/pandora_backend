@@ -8,7 +8,8 @@ class MessageCreate(BaseModel):
     content: Union[str, Dict[str, Any]]
     output: Optional[Dict[str, Any]] = None
     sql: Optional[str] = None    
-    dialect: Optional[str] = None   
+    dialect: Optional[str] = None
+    conversation_id: Optional[str] = None  # UUID to correlate Q&A pair
     
     @field_validator('content', mode='before')
     @classmethod
@@ -24,7 +25,8 @@ class MessageOut(BaseModel):
     content: str
     output: Optional[Dict[str, Any]] = None
     sql: Optional[str] = None     
-    dialect: Optional[str] = None   
+    dialect: Optional[str] = None
+    conversation_id: Optional[str] = None  # UUID to correlate Q&A pair
     created_at: datetime
 
     class Config:
